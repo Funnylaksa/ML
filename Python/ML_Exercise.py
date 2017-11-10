@@ -49,12 +49,12 @@ print (metrics.accuracy_score(y_pred , y_test))
 simple_train = ['hi, my name is ivan' , 'your name is hi' , 'ivan']
 vect= CountVectorizer(simple_train)
 vect.fit(simple_train)
-print (vect.get_feature_names())
+#print (vect.get_feature_names())
 
 # ## From list of words in simple_train, show what words appear in each item in list 
 simple_train_dtm = vect.transform(simple_train)
-print (simple_train_dtm)
-print (simple_train_dtm.toarray())
+#print (simple_train_dtm)
+#print (simple_train_dtm.toarray())
 
 #Make DataFrame
 pd.DataFrame(simple_train_dtm.toarray() , columns = vect.get_feature_names())
@@ -92,19 +92,32 @@ y_pred = log.predict(X_test_dtm)
 
 print (metrics.accuracy_score(y_test , y_pred))
 
-
+# To get all the words in the form of arrays
 X_train_tokens = vect.get_feature_names()
+
+#To get count of ham and spam of each word (len of both feature_count_ = 7456)
 ham_token_count = nb.feature_count_[0,:]
 spam_token_count = nb.feature_count_[1,:]
 
-#print (ham_token_count)
-#print (spam_token_count)
+# To place [word, ham_count and spam_count] in a DataFrame
+tokens = pd.DataFrame({'tokens':X_train_tokens  ,  'Ham': ham_token_count , 'Spam':spam_token_count})
 
-tokens = pd.DataFrame({'tokens':X_train_tokens  ,  'ham': ham_token_count , 'spam':spam_token_count})
-print (tokens)
+# 1 is added to remove all counts of 0(inf error)
+tokens['Ham'] = tokens.Ham +1
+tokens["Spam"] = tokens.Spam +1
 
+# To normalise the data (class_count_[0] = 3617 / class_count_[1] = 562) 
+#tokens.Ham = tokens['Ham']
+tokens["Ham"] = tokens.Ham/nb.class_count_[0]
+tokens["Spam"] = tokens.Spam/nb.class_count_[1]
 
+tokens['Spam_ratio'] = tokens['Spam']/tokens['Ham']
 
+# prints entire dataFrame, sorting value by spam ratio
+#print (tokens.sort_values('Spam_ratio'))
+df = tokens[['Spam' , 'Ham']]
+print (df)
 
+'release1'
 
 
